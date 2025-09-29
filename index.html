@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UsForeverLove</title>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <style>
 body,html{margin:0;padding:0;height:100%;overflow:hidden;font-family:sans-serif;}
 #loginOverlay{
@@ -21,6 +22,12 @@ body,html{margin:0;padding:0;height:100%;overflow:hidden;font-family:sans-serif;
 #loginBox button:hover{transform:scale(1.1);}
 #mcqueen{position:absolute;bottom:50px;left:-25%;width:30vw;max-width:250px;z-index:1;animation:mcqueenMove 8s linear infinite;}
 @keyframes mcqueenMove{0%{left:-25%;}100%{left:110%;}}
+.heart{position:absolute;width:25px;height:25px;background:red;transform:rotate(45deg);border-radius:50% 50% 0 0;animation:floatHeart linear infinite;}
+@keyframes floatHeart{0%{opacity:1; transform:translateY(0) rotate(45deg);}100%{opacity:0; transform:translateY(-800px) rotate(45deg);}}
+.bird{position:absolute;width:50px;animation:fly linear infinite;}
+@keyframes fly{0%{left:-60px;}100%{left:110%;}}
+#birthdayText{font-size:3em;color:gold;text-align:center;text-shadow:0 0 10px #fff,0 0 20px #FFD700,0 0 30px #FFA500,0 0 40px #fff;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
+video{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:80%;max-width:600px;z-index:10000;}
 </style>
 </head>
 <body>
@@ -38,39 +45,75 @@ body,html{margin:0;padding:0;height:100%;overflow:hidden;font-family:sans-serif;
 const VALID_USER="DN4Ever";
 const VALID_PASS="LILY";
 let noClickCount=0;
+const videoFiles=["no1.mp4","no2.mp4","no3.mp4"];
 
 // Login function
 function login(){
   const uid=document.getElementById("userid").value.trim();
   const pwd=document.getElementById("pass").value.trim();
   if(!uid||!pwd){alert("Both fields required!");return;}
+  if(uid!==VALID_USER || pwd!==VALID_PASS){alert("Wrong credentials!");return;}
 
-  if(uid===VALID_USER && pwd===VALID_PASS){
-    const newTab=window.open("","_blank");
-    if(newTab && newTab.document){
-      newTab.document.write(`
-        <body style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;">
-          <h1>Will you take your cutiee pie Nisar as your forever…?</h1>
-          <div style="margin-top:20px;">
-            <button onclick="window.location.href='happybirthday.html';" style="margin-right:10px;padding:10px 20px;background:#1e7a3a;color:#fff;border:none;border-radius:8px;cursor:pointer;">Yes 💍</button>
-            <button onclick="window.opener.handleNoClick();" style="padding:10px 20px;background:#c62828;color:#fff;border:none;border-radius:8px;cursor:pointer;">No 😅</button>
-          </div>
-        </body>
-      `);
-      newTab.document.close();
-    }
-  } else { alert("Wrong credentials. Try again!"); }
+  document.getElementById("loginBox").style.display="none";
+
+  // Yes/No prompt
+  const promptDiv=document.createElement("div");
+  promptDiv.innerHTML=`
+    <h1>Will you take your cutiee pie Nisar as your forever…?</h1>
+    <button id="yesBtn">Yes 💍</button>
+    <button id="noBtn">No 😅</button>
+  `;
+  promptDiv.style.textAlign="center";
+  document.getElementById("loginOverlay").appendChild(promptDiv);
+
+  document.getElementById("yesBtn").onclick=()=>{showHappyBirthday();};
+  document.getElementById("noBtn").onclick=()=>{handleNoClick();};
 }
 
-// Handle No click
+// Happy Birthday animation
+function showHappyBirthday(){
+  const overlay=document.getElementById("loginOverlay");
+  overlay.innerHTML=`<div id="birthdayText">🎉 Happy Birthday Devi 💖🎂 🎉</div>`;
+
+  // Fireworks
+  let duration=5000;
+  let animationEnd=Date.now()+duration;
+  let defaults={startVelocity:30,spread:360,ticks:60,zIndex:999};
+  function randomInRange(min,max){return Math.random()*(max-min)+min;}
+  let interval=setInterval(function(){
+    let timeLeft=animationEnd-Date.now();
+    if(timeLeft<=0)return clearInterval(interval);
+    let particleCount=50*(timeLeft/duration);
+    confetti(Object.assign({},defaults,{particleCount,origin:{x:randomInRange(0,1),y:Math.random()*0.5},colors:['#ff0','#ff9500','#fff','#ff0040','#00ffff']}));
+  },250);
+
+  // Hearts
+  function createHeart(){
+    const heart=document.createElement('div'); heart.className='heart';
+    heart.style.left=Math.random()*100+'%';
+    heart.style.backgroundColor=['#ff69b4','#ff1493','#ff4500','#ffb6c1'][Math.floor(Math.random()*4)];
+    heart.style.animationDuration=(Math.random()*3+3)+'s';
+    overlay.appendChild(heart);
+    setTimeout(()=>overlay.removeChild(heart),6000);
+  }
+  setInterval(createHeart,300);
+
+  // Birds
+  function createBird(){
+    const bird=document.createElement('img');
+    bird.src='birds.gif'; bird.className='bird';
+    bird.style.top=Math.random()*50+'%'; bird.style.animationDuration=(Math.random()*5+5)+'s';
+    overlay.appendChild(bird);
+    setTimeout(()=>overlay.removeChild(bird),10000);
+  }
+  setInterval(createBird,2000);
+}
+
+// No click
 function handleNoClick(){
   noClickCount++;
-  const videoFiles=["no1.mp4","no2.mp4","no3.mp4"];
   if(noClickCount<=3){
-    let vid=document.createElement("video");
-    vid.src=videoFiles[noClickCount-1]; vid.autoplay=true; vid.controls=true;
-    vid.style.position="fixed"; vid.style.top="50%"; vid.style.left="50%";
-    vid.style.transform="translate(-50%,-50%)"; vid.style.width="80%"; vid.style.maxWidth="600px"; vid.style.zIndex=10000;
+    let vid=document.createElement("video"); vid.src=videoFiles[noClickCount-1]; vid.autoplay=true; vid.controls=true;
     document.body.appendChild(vid);
   } else { alert("Now please click YES! 💖"); }
 }
