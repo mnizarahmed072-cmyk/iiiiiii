@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The One with Your Birthday 🎂</title>
+<style>
+  body {
+    margin: 0;
+    background: linear-gradient(to bottom right, #ffe5ec, #ffc1cc, #ffb3c6);
+    font-family: 'Poppins', sans-serif;
+    overflow-x: hidden;
+  }
+
+  header {
+    text-align: center;
+    padding: 25px 10px;
+    font-size: 2em;
+    color: #fff;
+    text-shadow: 2px 2px 5px #ff4d6d;
+    letter-spacing: 1px;
+  }
+
+  .years-container {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 20px;
+    padding: 30px;
+    scroll-behavior: smooth;
+    justify-content: flex-start;
+  }
+
+  .year-box {
+    flex: 0 0 150px;
+    height: 130px;
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .year-box:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+  }
+
+  .gallery {
+    display: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 25px;
+  }
+
+  img, video {
+    width: 350px;
+    max-width: 90vw;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    transition: transform 0.3s ease;
+  }
+
+  img:hover, video:hover {
+    transform: scale(1.03);
+  }
+
+  .back-home, .back-years {
+    position: fixed;
+    top: 15px;
+    padding: 8px 18px;
+    background: #ff6b81;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s ease;
+    z-index: 10;
+  }
+
+  .back-home { left: 15px; }
+  .back-years { right: 15px; display: none; }
+
+  .back-home:hover, .back-years:hover {
+    background: #ff4d6d;
+  }
+
+  .empty {
+    text-align: center;
+    font-size: 1.5em;
+    color: #fff;
+    margin-top: 100px;
+  }
+
+  /* Optional scrollbar style */
+  ::-webkit-scrollbar { height: 10px; }
+  ::-webkit-scrollbar-thumb {
+    background: #ff8fa3;
+    border-radius: 10px;
+  }
+</style>
+</head>
+<body>
+
+<header>✨ The One with Your Birthday 🎂</header>
+<button class="back-home" onclick="window.location.href='tabs_page.html'">← Home</button>
+<button class="back-years" onclick="showYears()">← Back</button>
+
+<div class="years-container" id="yearsContainer"></div>
+<div class="gallery" id="galleryContainer"></div>
+
+<script>
+/* 💖 MANUAL ADD OPTION (oldest → newest) */
+const birthdayFiles = {
+  "2024": ["birthday_year/2024/image.jpeg"],
+  "2025": ["birthday_year/2025/Birthday_outing.mp4", "birthday_year/2025/celebration.mp4"],
+  "2026": [],
+  // Add more years manually if needed
+};
+
+/* Create list of years (2024 → 2085) */
+const yearsContainer = document.getElementById("yearsContainer");
+const galleryContainer = document.getElementById("galleryContainer");
+const backYears = document.querySelector(".back-years");
+
+for (let year = 2024; year <= 2085; year++) {
+  const div = document.createElement("div");
+  div.className = "year-box";
+  div.textContent = year;
+  div.onclick = () => openYear(year);
+  yearsContainer.appendChild(div);
+}
+
+/* Open selected year's gallery */
+function openYear(year) {
+  yearsContainer.style.display = "none";
+  galleryContainer.style.display = "flex";
+  backYears.style.display = "inline-block";
+  galleryContainer.innerHTML = "";
+
+  const files = birthdayFiles[year] || [];
+  if (files.length === 0) {
+    galleryContainer.innerHTML = `<div class='empty'>Memories yet to create for ${year} 💭</div>`;
+    return;
+  }
+
+  files.forEach(file => {
+    if (file.toLowerCase().endsWith(".mp4")) {
+      const vid = document.createElement("video");
+      vid.src = file;
+      vid.controls = true;
+      galleryContainer.appendChild(vid);
+    } else {
+      const img = document.createElement("img");
+      img.src = file;
+      img.alt = \`Memory \${year}\`;
+      galleryContainer.appendChild(img);
+    }
+  });
+}
+
+/* Back to years */
+function showYears() {
+  galleryContainer.style.display = "none";
+  yearsContainer.style.display = "flex";
+  backYears.style.display = "none";
+}
+</script>
+
+</body>
+</html>
